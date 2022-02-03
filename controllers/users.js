@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const NotFoundError = require('../errors/NotFoundError');
 const IncorrectDataError = require('../errors/IncorrectDataError');
-const EmailError = require('../errors/EmailError');
+const AlreadyBeError = require('../errors/AlreadyBeError');
 const AuthentificationError = require('../errors/AuthentificationError');
 
 const login = (req, res, next) => {
@@ -25,14 +25,24 @@ const login = (req, res, next) => {
           secure: true,
         })
         .status(200)
-        .send(user);
+        .send({ token });
     })
     .catch(next);
 };
 
+const deleteAuth = (req, res) => {
+  res
+    .clearCookie('token', {
+      maxAge: 0,
+      httpOnly: true,
+      sameSite: 'None',
+    })
+    .send({ message: 'Авторизация отменена!' });
+};
+
 const createUser = (req, res, next) => {
   const { name, email, password } = req.body;
-  if (!email || !password || password.length < 8) {
+  if (!email || !password || password.length < 6) {
     throw new AuthentificationError('Неправильные почта или пароль');
   }
   bcrypt.hash(password, 10)
@@ -49,7 +59,7 @@ const createUser = (req, res, next) => {
         next(new IncorrectDataError('Введены некорректиные данные'));
       }
       if (err.code === 11000) {
-        next(new EmailError('Пользователь с таким email уже зарегестрирован'));
+        next(new AlreadyBeError('Пользователь с таким email уже зарегестрирован'));
       } else {
         next(err);
       }
@@ -82,7 +92,7 @@ const updateUserInfo = (req, res, next) => {
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.code === 11000) {
-        next(new EmailError('Пользователь с таким e-mail уже существует'));
+        next(new AlreadyBeError('Пользователь с таким e-mail уже существует'));
       } else if (err.name === 'ValidationError') {
         next(new IncorrectDataError('Переданы некорректные данные!'));
       } else if (err.name === 'CastError') {
@@ -98,4 +108,5 @@ module.exports = {
   createUser,
   updateUserInfo,
   login,
+  deleteAuth,
 };

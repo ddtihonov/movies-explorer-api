@@ -3,24 +3,31 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
+require('dotenv').config();
+const { errors } = require('celebrate');
 
+const router = require('./routes/index');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
+const { limiter } = require('./middlewares/limiter');
+const { cors } = require('./middlewares/cors');
 
 const { PORT = 3000 } = process.env;
 const app = express();
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieParser());
-app.use(helmet());
-
 mongoose.connect('mongodb://localhost:27017/bitfilmsdb');
 
-app.use();
-
 app.use(requestLogger); // подключаем логгер запросов
+app.use(limiter);
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());// => токен в req.cookies.token
+app.use(helmet());
+
+app.use(cors);
+app.use('/', router);
 
 app.use(errorLogger); // подключаем логгер ошибок - после роутов и до обработчиков ошибок
+app.use(errors());
 
 app.use((err, req, res, next) => {
   res.status(err.statusCode).send({

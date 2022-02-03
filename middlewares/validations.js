@@ -1,4 +1,12 @@
-const { celebrate, Joi } = require('celebrate');
+const { celebrate, Joi, CelebrateError } = require('celebrate');
+const validator = require('validator');
+
+const urlValidation = (value) => {
+  if (!validator.isURL(value)) {
+    throw new CelebrateError('Некорректный формат ccылки');
+  }
+  return value;
+};
 
 const validateUserUpdate = celebrate({
   body: Joi.object().keys({
@@ -29,8 +37,32 @@ const validateUserCreate = celebrate({
   }),
 });
 
+const validateMovieBody = celebrate({
+  body: Joi.object().keys({
+    country: Joi.string().required(),
+    director: Joi.string().required(),
+    duration: Joi.number().required(),
+    year: Joi.string().required(),
+    description: Joi.string().required(),
+    image: Joi.string().required().custom(urlValidation),
+    trailerLink: Joi.string().required().custom(urlValidation),
+    thumbnail: Joi.string().required().custom(urlValidation),
+    id: Joi.number().required(),
+    nameRU: Joi.string().required(),
+    nameEN: Joi.string().required(),
+  }),
+});
+
+const validateMovieDelete = celebrate({
+  params: Joi.object().keys({
+    id: Joi.string().required().length(24).hex(),
+  }),
+});
+
 module.exports = {
   validateUserUpdate,
   validateUserLogin,
   validateUserCreate,
+  validateMovieBody,
+  validateMovieDelete,
 };
