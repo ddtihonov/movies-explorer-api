@@ -18,7 +18,7 @@ router.post('/signin', validateUserLogin, login);
 // роуты требующие авторизации
 router.use('/users', auth, userRouter);
 router.use('/movies', auth, movieRouter);
-router.delete('/signout', deleteAuth);
+router.delete('/signout', auth, deleteAuth);
 
 // переход на несуществующий роут
 router.use((req, res, next) => {

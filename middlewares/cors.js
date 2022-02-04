@@ -2,8 +2,8 @@ const DEFAULT_ALLOWED_METHODS = 'GET,HEAD,PUT,PATCH,POST,DELETE';
 
 // Массив доменов, с которых разрешены кросс-доменные запросы
 const allowedCors = [
-  'https://ddtihonov.students.nomoredomains.rocks',
-  'http://ddtihonov.students.nomoredomains.rocks',
+  'https://api.ddtihonov.students.nomoredomains.work',
+  'http://api.ddtihonov.students.nomoredomains.work',
   'https://localhost:3000',
   'http://localhost:3000',
 ];
