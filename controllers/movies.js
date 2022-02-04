@@ -52,7 +52,7 @@ const getUserMovies = (req, res, next) => {
 };
 
 const deleteMovie = (req, res, next) => {
-  Movie.findById(req.params.movieId)
+  Movie.findById(req.params.id)
     .orFail(() => {
       throw new NotFoundError('Фильм не найден');
     })
