@@ -10,11 +10,15 @@ const router = require('./routes/index');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const { limiter } = require('./middlewares/limiter');
 const { cors } = require('./middlewares/cors');
+const errorHandler = require('./middlewares/errorHandler');
 
-const { PORT = 3000 } = process.env;
+const {
+  PORT = 3000,
+  LOCAL_DB = 'mongodb://localhost:27017/moviesdb',
+} = process.env;
 const app = express();
 
-mongoose.connect('mongodb://localhost:27017/bitfilmsdb');
+mongoose.connect(LOCAL_DB);
 
 app.use(requestLogger); // подключаем логгер запросов
 app.use(limiter);
@@ -24,19 +28,11 @@ app.use(cookieParser());// => токен в req.cookies.token
 app.use(helmet());
 
 app.use(cors);
-app.use('/', router);
+app.use(router);
 
 app.use(errorLogger); // подключаем логгер ошибок - после роутов и до обработчиков ошибок
 app.use(errors());
-
-app.use((err, req, res, next) => {
-  res.status(err.statusCode).send({
-    message: err.statusCode === 500
-      ? 'На сервере произошла ошибка'
-      : err.message,
-  });
-  next();
-});
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server started on ${PORT}`);

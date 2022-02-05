@@ -42,33 +42,30 @@ const createMovie = (req, res, next) => {
       } else {
         next(err);
       }
-    });
+      throw err;
+    })
+    .catch(next);
 };
 
 const getUserMovies = (req, res, next) => {
   Movie.find({ owner: req.user._id })
     .then((movies) => res.status(200).send(movies))
+    .catch((err) => {
+      next(err);
+      throw err;
+    })
     .catch(next);
 };
 
 const deleteMovie = (req, res, next) => {
   Movie.findById(req.params.id)
-    .orFail(() => {
-      throw new NotFoundError('Фильм не найден');
-    })
+    .orFail(new NotFoundError('Фильм не найден'))
     .then((movie) => {
-      if (String(movie.owner) !== req.user._id) {
-        next(new AuthorizationError('Нельзя удалить чужой фильм'));
-      } else {
-        movie.remove()
-          .then(() => res.status(200).send(movie))
-          .catch(next);
+      if (String(movie.owner) === req.user._id) {
+        return movie.remove()
+          .then(() => res.status(200).send(movie));
       }
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        throw new IncorrectDataError('Переданы некорректные данные');
-      }
+      throw new AuthorizationError('Нельзя удалить чужой фильм');
     })
     .catch(next);
 };

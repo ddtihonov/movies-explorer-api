@@ -14,11 +14,11 @@ const {
 // роуты, не требующие авторизации
 router.post('/signup', validateUserCreate, createUser);
 router.post('/signin', validateUserLogin, login);
-
+router.use(auth);
 // роуты требующие авторизации
-router.use('/users', auth, userRouter);
-router.use('/movies', auth, movieRouter);
-router.delete('/signout', auth, deleteAuth);
+router.use('/users', userRouter);
+router.use('/movies', movieRouter);
+router.delete('/signout', deleteAuth);
 
 // переход на несуществующий роут
 router.use((req, res, next) => {

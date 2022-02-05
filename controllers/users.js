@@ -5,7 +5,6 @@ const User = require('../models/user');
 const NotFoundError = require('../errors/NotFoundError');
 const IncorrectDataError = require('../errors/IncorrectDataError');
 const AlreadyBeError = require('../errors/AlreadyBeError');
-const AuthentificationError = require('../errors/AuthentificationError');
 
 const login = (req, res, next) => {
   const { email, password } = req.body;
@@ -41,9 +40,6 @@ const deleteAuth = (req, res) => {
 
 const createUser = (req, res, next) => {
   const { name, email, password } = req.body;
-  if (!email || !password || password.length < 6) {
-    throw new AuthentificationError('Неправильные почта или пароль');
-  }
   bcrypt.hash(password, 10)
     .then((hash) => User.create({
       name, email, password: hash,
@@ -62,15 +58,17 @@ const createUser = (req, res, next) => {
       } else {
         next(err);
       }
-    });
+      throw err;
+    })
+    .catch(next);
 };
 
 const getUserById = (req, res, next) => {
   User.findById(req.user._id)
-    .orFail(() => {
+    .then((user) => res.status(200).send(user))
+    .catch(() => {
       throw new NotFoundError('Пользователь не найден');
     })
-    .then((user) => res.status(200).send(user))
     .catch(next);
 };
 
@@ -99,7 +97,9 @@ const updateUserInfo = (req, res, next) => {
       } else {
         next(err);
       }
-    });
+      throw err;
+    })
+    .catch(next);
 };
 
 module.exports = {

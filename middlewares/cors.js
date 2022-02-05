@@ -4,10 +4,12 @@ const DEFAULT_ALLOWED_METHODS = 'GET,HEAD,PUT,PATCH,POST,DELETE';
 const allowedCors = [
   'https://ddtihonov.students.nomoredomains.work',
   'http://ddtihonov.students.nomoredomains.work',
+  'https://api.ddtihonov.students.nomoredomains.work',
+  'http://api.ddtihonov.students.nomoredomains.work',
   'https://localhost:3000',
   'http://localhost:3000',
 ];
-// eslint-disable-next-line consistent-return
+
 function cors(req, res, next) {
   const { origin } = req.headers; // источник запроса - в переменную origin
   const { method } = req; // тип запроса (HTTP-метод) в соотв. переменную
