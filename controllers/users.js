@@ -24,7 +24,7 @@ const login = (req, res, next) => {
           secure: true,
         })
         .status(200)
-        .send({ user });
+        .send({ token });
     })
     .catch(next);
 };
