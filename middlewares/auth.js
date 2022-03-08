@@ -3,9 +3,6 @@ const AuthentificationError = require('../errors/AuthentificationError');
 
 module.exports = (req, res, next) => {
   const { NODE_ENV, JWT_SECRET } = process.env;
-  if (!req.cookies.token) {
-    return next(new AuthentificationError('Доступа нет!'));
-  }
   let payload;
   try {
     payload = jwt.verify(
